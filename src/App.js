@@ -6,6 +6,8 @@ import { Tooltip } from 'primereact/tooltip';
 import { Tag } from 'primereact/tag';
 import './App.css';
 
+const ipcRenderer = window.require("electron").ipcRenderer;
+
 function App() {
   const toast = useRef(null);
     const excelFileUploadRef = useRef(null);
@@ -23,14 +25,19 @@ function App() {
       );
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    
     const excelFile = excelFileUploadRef.current.getFiles()[0]
     const fastaFile = fastaFileUploadRef.current.getFiles()[0]
-    console.log(excelFile)
-    console.log(fastaFile)
 
-    toast.current.show({ severity: 'info', summary: 'Success', detail: 'Sequences Parsed' });
-    };
+    toast.current.show({ severity: 'info', summary: 'Processing', detail: 'Sequences Are Being Parsed, an alert like this one will let you know when they are done' });
+
+    // let excel = await ipcRenderer.invoke("path-to-buffer", excelFile.path)
+    let saved = await ipcRenderer.invoke("path-to-buffer", excelFile.path, fastaFile.path)
+    console.log("dna sequence text files:",saved)
+
+    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Sequences Have Been Parsed' });
+  };
 
   const itemTemplate = (file, props) => {
       return (
@@ -42,7 +49,6 @@ function App() {
                   </span>
               </div>
               <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
-              <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto"  />
           </div>
       );
   };
