@@ -41,7 +41,7 @@
       "node_modules/**/*",
       "package.json"
     ],
-    "icon": "DNA Sequencer"
+    "icon": "Fasta Parser"
   },
   "eslintConfig": {
     "extends": [
