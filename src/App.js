@@ -36,7 +36,7 @@ function App() {
     let saved = await ipcRenderer.invoke("path-to-buffer", excelFile.path, fastaFile.path)
     console.log("dna sequence text files:",saved)
 
-    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Sequences Have Been Parsed' });
+    toast.current.show({ sticky:"true", severity: 'success', summary: 'Success', detail: 'Sequences Have Been Parsed' });
   };
 
   const itemTemplate = (file, props) => {
