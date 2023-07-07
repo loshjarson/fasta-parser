@@ -36,6 +36,8 @@ function App() {
     let saved = await ipcRenderer.invoke("path-to-buffer", excelFile.path, fastaFile.path)
     console.log("dna sequence text files:",saved)
 
+    let toExcel = await ipcRenderer.invoke("save-excel", saved, excelFile.path)
+    console.log(toExcel)
     toast.current.show({ sticky:"true", severity: 'success', summary: 'Success', detail: 'Sequences Have Been Parsed' });
   };
 

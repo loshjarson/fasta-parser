@@ -23,7 +23,7 @@ function createWindow() {
             enableRemoteModule: true,
             contextIsolation: false
         },
-        icon:"./sbs logo.ico"
+        icon:"./Fasta Parser.ico"
     })
     myWindow.loadURL( `file://${path.join(__dirname, '../build/index.html')}`)
     
@@ -71,6 +71,7 @@ if(!gotTheLock){
           const excelData = readExcelFile(filePath);
         
           const promises = excelData.map((row) => {
+            if(row.length>0) {
             const scaffoldTitle = row[1]; // Column B
             const startIndex = parseInt(row[2]); // Column C
             const endIndex = parseInt(row[3]); // Column D
@@ -78,6 +79,7 @@ if(!gotTheLock){
             const outputFile = path.join(os.homedir(), 'Downloads', `${row[7]}.txt`); // Column H
         
             return parseDNASequence(fastaFilePath, scaffoldTitle, startIndex, endIndex, outputFile, transcriptID);
+          } else return []
           });
         
           return Promise.all(promises);
@@ -133,18 +135,25 @@ if(!gotTheLock){
         
                 const startWithinLine = Math.max(startIndex - lineStartIndex - 1, 0);
                 const endWithinLine = Math.min(endIndex - lineStartIndex, line.length - 1);
+
         
                 if (startWithinLine <= endWithinLine) {
                   const sequenceToAdd = line.substring(startWithinLine, endWithinLine + 1);
                   currentSequence += sequenceToAdd;
+                  if(currentSequence.length >= 5000){
+                    rl.close()
+                  }
                 }
+                
+                
               }
             });
         
             rl.on('close', () => {
               const wrappedSequence = wrapSequence(currentSequence);
-              fs.writeFileSync(outputFilePath, `>${transcriptID}\n` + wrappedSequence);
-              resolve(outputFilePath);
+              // fs.writeFileSync(outputFilePath, `>${transcriptID}\n` + wrappedSequence);
+
+              resolve(`>${transcriptID}\n` + wrappedSequence)
             });
         
             fileStream.on('error', (err) => {
@@ -154,5 +163,31 @@ if(!gotTheLock){
         }
 
         return parseDNASequencesFromExcel(filePath, fastaFilePath)
+      })
+
+      ipcMain.handle("save-excel", async(event, ...args) => {
+
+        const [genomes, excelPath] = args
+        const workbook = xlsx.readFile(excelPath);
+
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const excelData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+        const toExcel = []
+        excelData.forEach((row,i) => {
+            if(i>0){
+                if(row.length > 0) {
+                  row.push(genomes[i-1])
+                  toExcel.push(row)
+                }
+            } else {
+              toExcel.push(row)
+            }
+        })
+        const newSheet = xlsx.utils.json_to_sheet(toExcel)
+        xlsx.utils.book_append_sheet(workbook,newSheet)
+        const buff = xlsx.write(workbook, { bookType: 'xlsx', type: "buffer" })
+        fs.writeFileSync(excelPath,buff)
+        return(excelPath)
       })
 }
