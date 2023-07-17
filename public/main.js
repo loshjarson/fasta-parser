@@ -100,6 +100,7 @@ if(!gotTheLock){
         }
 
         function parseDNASequence(fastaFilePath, scaffoldTitle, startIndex, endIndex, outputFilePath, transcriptID) {
+          const parsedSequences = []
           return new Promise((resolve, reject) => {
             let withinSequence = false;
             let currentSequence = '';
@@ -128,8 +129,15 @@ if(!gotTheLock){
                 lineEndIndex = lineStartIndex + line.length - 1;
         
                 if (lineEndIndex < startIndex) {
-                  // Line is completely outside the desired range
-                  lineStartIndex = lineEndIndex + 1;
+                  // Line is completely before the desired range
+                  return;
+                }
+        
+                if (lineStartIndex > endIndex || currentSequence.length >= 5000) {
+                  // Line is completely after the desired range
+                  console.log("after")
+                  parsedSequences.push(currentSequence)
+                  withinSequence = false;
                   return;
                 }
         
@@ -140,9 +148,7 @@ if(!gotTheLock){
                 if (startWithinLine <= endWithinLine) {
                   const sequenceToAdd = line.substring(startWithinLine, endWithinLine + 1);
                   currentSequence += sequenceToAdd;
-                  if(currentSequence.length >= 5000){
-                    rl.close()
-                  }
+                  console.log("current",currentSequence)
                 }
                 
                 
@@ -150,10 +156,12 @@ if(!gotTheLock){
             });
         
             rl.on('close', () => {
-              const wrappedSequence = wrapSequence(currentSequence);
-              // fs.writeFileSync(outputFilePath, `>${transcriptID}\n` + wrappedSequence);
+              parsedSequences.map((seq) => {
+                return (`>${transcriptID}\n` + wrapSequence(seq))
+              })
+              
 
-              resolve(`>${transcriptID}\n` + wrappedSequence)
+              resolve(parsedSequences)
             });
         
             fileStream.on('error', (err) => {
