@@ -91,7 +91,7 @@ function App() {
 
             <FileUpload ref={excelFileUploadRef} name="excel-file-upload"
                 headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyExcelTemplate}
-                chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} />
+                chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} accept='.xlsx'/>
         </div>
         <div  style={{flexBasis:"49%"}}>
 
@@ -100,7 +100,7 @@ function App() {
 
             <FileUpload ref={fastaFileUploadRef} name="fasta-file-upload"
                 headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyFastaTemplate}
-                chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} />
+                chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} accept='.fasta'/>
         </div>
         <div style={{flexBasis:"100%", textAlign:"center", marginTop:"50px"}}>
             <Button onClick={handleUpload}>Get Sequences</Button>
