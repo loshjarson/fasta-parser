@@ -135,7 +135,6 @@ if(!gotTheLock){
         
                 if (lineStartIndex > endIndex || currentSequence.length >= 5000) {
                   // Line is completely after the desired range
-                  console.log("after")
                   parsedSequences.push(currentSequence)
                   withinSequence = false;
                   return;
@@ -148,7 +147,6 @@ if(!gotTheLock){
                 if (startWithinLine <= endWithinLine) {
                   const sequenceToAdd = line.substring(startWithinLine, endWithinLine + 1);
                   currentSequence += sequenceToAdd;
-                  console.log("current",currentSequence)
                 }
                 
                 
@@ -159,8 +157,6 @@ if(!gotTheLock){
               parsedSequences.map((seq) => {
                 return (`>${transcriptID}\n` + wrapSequence(seq))
               })
-              
-
               resolve(parsedSequences)
             });
         
